@@ -1,7 +1,17 @@
 import pandas as pd
-  
+import pyautogui
+
+pyautogui.PAUSE = 0.0001 # Makes thing faster
+import pyperclip
+
 from tkinter import *
-df = pd.read_csv("points_data.csv")
+df = pd.read_csv("points_data.csv") # data controlling the points
+script_setup='exec(open("./algorithms/base_setup.py").read())'
+
+""" script_create_particles = open("./algorithms/create_sourceAndparticles.py", "r").read() # script for creating points and particles
+script_delete_particles = open("./algorithms/delete_sourceAndparticles.py", "r").read() # script to delete particles
+script_setup = open("./algorithms/base_setup.py", "r").read() # script to initialize
+ """
 
 def write_values(): # Used to write down the value on the csv
     df = pd.read_csv("points_data.csv")
@@ -31,9 +41,27 @@ def update_window(event): # Used to choose the right line to modify the csv
     w5.set(df.loc[selected_tracer, 'radius_points'])
     w6.set(df.loc[selected_tracer, 'diffCoeff'])
 
+def select_python_shell_paraview(script): # Paraview has some weird complicated way of handling different python frameworks, between clients, server, etc. A quick and dirty way to overcome it is to use this method to enter the value we want in the python shell directly
+
+    initial_position=pyautogui.position()
+    start = pyautogui.locateCenterOnScreen('python_shell_text.png')
+    print(start)
+    pyautogui.moveTo(start)#Moves the mouse to the coordinates of the image
+    pyautogui.moveRel(0,100)
+    pyautogui.click()
+    pyautogui.hotkey('right')
+    pyautogui.hotkey('right')
+    pyautogui.hotkey('right') # To avoid any issue
+    pyperclip.copy(script)
+    pyautogui.hotkey("ctrl","v")
+    pyautogui.press('enter')
+    pyautogui.moveTo(initial_position)
 
 master = Tk()
 master.title("Particle Tracer Manager")
+
+
+
 
 # Select the particle tracer (== the line on the csv)
 point_text= Label(text="Point selected") 
@@ -67,8 +95,12 @@ w7 = Scale(master, from_=-180, to=180,orient=HORIZONTAL,length=300, label='Veloc
 #w7.set(0)
 w7.pack()
 
-
+Button(master, text='Initialize case', command=lambda :select_python_shell_paraview('exec(open("./algorithms/base_setup.py").read())'),pady=3,padx=3).pack()
 Button(master, text='Update', command=write_values,pady=30,padx=30).pack()
+Button(master, text='Magicly create particles', command=lambda :select_python_shell_paraview("""exec(open("./algorithms/create_sourceAndparticles.py").read())"""),pady=30,padx=30).pack()
+Button(master, text='Delete currently selected particle', command=lambda :select_python_shell_paraview("""exec(open("./algorithms/delete_sourceAndparticles.py").read())"""),pady=30,padx=30).pack()
+
+master.attributes('-topmost', True) #To always have window on top
 
 mainloop()
 

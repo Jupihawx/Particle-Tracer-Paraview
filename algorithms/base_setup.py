@@ -8,26 +8,32 @@ from paraview.simple import *
 #### disable automatic camera reset on 'Show'
 paraview.simple._DisableFirstRenderCameraReset()
 
-# find source
-afoam = FindSource('a.foam')
-renderView1 = GetActiveViewOrCreate('RenderView')
+currentItem=FindSource("TemporalInterpolator1")
 
-# create a new 'Temporal Interpolator'
-temporalInterpolator1 = TemporalInterpolator(registrationName='TemporalInterpolator1', Input=afoam)
+if str(currentItem)!="None": # Do nothing if already applied
+    pass
 
-# Properties modified on temporalInterpolator1
-temporalInterpolator1.ResampleFactor = 100
+else:
+    # find source
+    afoam = FindSource('a.foam')
+    renderView1 = GetActiveViewOrCreate('RenderView')
+
+    # create a new 'Temporal Interpolator'
+    temporalInterpolator1 = TemporalInterpolator(registrationName='TemporalInterpolator1', Input=afoam)
+
+    # Properties modified on temporalInterpolator1
+    temporalInterpolator1.ResampleFactor = 100
 
 
-# create a new 'Programmable Filter'
-programmableFilter1 = ProgrammableFilter(registrationName='ProgrammableFilter1', Input=temporalInterpolator1)
-programmableFilter1.Script = ''
-programmableFilter1.RequestInformationScript = ''
-programmableFilter1.RequestUpdateExtentScript = ''
-programmableFilter1.PythonPath = ''
+    # create a new 'Programmable Filter'
+    programmableFilter1 = ProgrammableFilter(registrationName='ProgrammableFilter1', Input=temporalInterpolator1)
+    programmableFilter1.Script = ''
+    programmableFilter1.RequestInformationScript = ''
+    programmableFilter1.RequestUpdateExtentScript = ''
+    programmableFilter1.PythonPath = ''
 
-# Properties modified on programmableFilter1
-programmableFilter1.Script = """import numpy as np
+    # Properties modified on programmableFilter1
+    programmableFilter1.Script = """import numpy as np
 from numpy import genfromtxt
 my_data = genfromtxt('points_data.csv', delimiter=',')
 
@@ -35,7 +41,6 @@ input0=inputs[0]
 # t = inputs[0].GetInformation().Get(vtk.vtkDataObject.DATA_TIME_STEP())
 dt=0.99 #Find a way to automate?
 diffCoeff=my_data[1][6]
-print(diffCoeff)
 data=input0.PointData["U"] / 1.0
 treated=data.Arrays[0]
 noise=np.sqrt(2*diffCoeff/dt)*np.random.normal(0,1,(data.Arrays[0].shape[0],data.Arrays[0].shape[1]))
@@ -52,14 +57,14 @@ treated_data=data+noise
 
 
 output.PointData.append(treated_data,"U_noise")"""
-programmableFilter1.RequestInformationScript = ''
-programmableFilter1.RequestUpdateExtentScript = ''
-programmableFilter1.PythonPath = ''
+    programmableFilter1.RequestInformationScript = ''
+    programmableFilter1.RequestUpdateExtentScript = ''
+    programmableFilter1.PythonPath = ''
 
-Hide(afoam, renderView1)
-Hide(programmableFilter1, renderView1)
-Hide(temporalInterpolator1, renderView1)
+    Hide(afoam, renderView1)
+    Hide(programmableFilter1, renderView1)
+    Hide(temporalInterpolator1, renderView1)
 
 
-# update the view to ensure updated data information
-renderView1.Update()
+    # update the view to ensure updated data information
+    renderView1.Update()
