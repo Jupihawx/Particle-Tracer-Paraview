@@ -1,5 +1,10 @@
 from paraview.simple import *
 
+import numpy as np
+
+from numpy import genfromtxt
+my_data = genfromtxt('points_data.csv', delimiter=",")
+
 
 ##################### Create source #########################
 
@@ -125,8 +130,10 @@ UpdatePipeline()
 
 colors=[[1,0,0],[0,1,0],[0,0,1],[1,1,0],[0,1,1],[1,0,1]] # A MODIFIER POUR UN TRUC NICER
 
-particleTracerGeneratedDisplay.AmbientColor = colors[i]
-particleTracerGeneratedDisplay.DiffuseColor = colors[i]
+particleTracerGeneratedDisplay.AmbientColor=[my_data[i+1][9],my_data[i+1][10],my_data[i+1][11]]
+particleTracerGeneratedDisplay.DiffuseColor=[my_data[i+1][9],my_data[i+1][10],my_data[i+1][11]]
+#particleTracerGeneratedDisplay.AmbientColor = colors[i]
+#particleTracerGeneratedDisplay.DiffuseColor = colors[i]
 
 
 #particleTracerGeneratedDisplay.RescaleTransferFunctionToDataRange(True, True)

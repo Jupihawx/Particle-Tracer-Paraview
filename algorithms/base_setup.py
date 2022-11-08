@@ -15,7 +15,7 @@ if str(currentItem)!="None": # Do nothing if already applied
 
 else:
     # find source
-    afoam = FindSource('a.foam')
+    afoam = FindSource('Field')
     renderView1 = GetActiveViewOrCreate('RenderView')
 
     # create a new 'Temporal Interpolator'
